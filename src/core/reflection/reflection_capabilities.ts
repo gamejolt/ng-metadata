@@ -8,7 +8,12 @@ import { ListWrapper } from '../../facade/collections';
 // This will be needed when we will used Reflect APIs
 const Reflect = global.Reflect;
 if ( !isReflectMetadata(Reflect) ) {
-  throw 'reflect-metadata shim is required when using class decorators';
+  throw `
+    Reflect.*metadata shim is required when using class decorators.
+    You can use one of: 
+    - "reflect-metadata" (https://www.npmjs.com/package/reflect-metadata) 
+    - "core-js/es7/reflect" (https://github.com/zloirock/core-js)
+  `;
 }
 
 /**
@@ -27,6 +32,11 @@ export const PARAM_REFLECT_META_KEY = 'design:paramtypes';
  * @internal
  */
 export const PROP_META_KEY = 'propMetadata';
+
+/**
+ * @internal
+ */
+export const DOWNGRADED_COMPONENT_NAME_KEY = 'downgradeComponentName';
 
 function isReflectMetadata( reflect: any ): boolean {
   return isPresent( reflect ) && isPresent( reflect.getMetadata );
@@ -251,6 +261,14 @@ export class ReflectionCapabilities implements PlatformReflectionCapabilities {
 
   registerPropMetadata( propMetadata, typeOrFunc: Type ): void {
     this._reflect.defineMetadata( PROP_META_KEY, propMetadata, typeOrFunc );
+  }
+
+  registerDowngradedNg2ComponentName( componentName: string, typeOrFunc: Type ): void {
+    this._reflect.defineMetadata( DOWNGRADED_COMPONENT_NAME_KEY, componentName, typeOrFunc );
+  }
+
+  downgradedNg2ComponentName( typeOrFunc: Type ): string {
+    return this._reflect.getOwnMetadata( DOWNGRADED_COMPONENT_NAME_KEY, typeOrFunc );
   }
 
   interfaces( type: Type ): any[] {

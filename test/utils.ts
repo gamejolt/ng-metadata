@@ -1,10 +1,11 @@
+import * as angular from 'angular';
 import { isArray, isFunction, assign } from '../src/facade/lang';
 
 // ============================
 // _private helpers for testing
 // ============================
 
-export function createNgModule() {
+export function createAngular1Module() {
   return {
     module( name, requires?: string[] ){
       const _m = {
@@ -117,7 +118,7 @@ function __injectionArgs(fn, locals, serviceName){
  * @internal
  * @returns {any}
  */
-export function getNg1InjectorMock(): ng.auto.IInjectorService {
+export function getNg1InjectorMock(): angular.auto.IInjectorService {
   return {
     instantiate( classFactory ){
       return new classFactory();
@@ -325,7 +326,7 @@ export function ElementFactory() {
       this._eventListeners.push({ eventName, cb } )
     },
     off(eventName?){
-
+      if(!eventName) this._eventListeners = [];
     },
     eq(idx:number){
       return isArray(_$element) ? _$element[idx] : _$element
@@ -338,7 +339,12 @@ export function ElementFactory() {
     injector(){
       return $InjectorStatic
     },
-    controller( ctrlName: string ){}
+    controller( ctrlName: string ){},
+    remove(){
+      this._eventListeners.forEach(function(evtHandler:{eventName:string, cb:Function}) {
+        if(evtHandler.eventName === "$destroy") evtHandler.cb();
+      });
+    }
   };
 
   return _$element;

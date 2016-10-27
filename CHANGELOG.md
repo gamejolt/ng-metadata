@@ -1,3 +1,263 @@
+<a name="3.0.2"></a>
+## [3.0.2](https://github.com/ngParty/ng-metadata/compare/3.0.1...v3.0.2) (2016-10-21)
+
+
+### Bug Fixes
+
+* **npm:** remove reflect-metadata from peerDependencies as user can use core-js or other polyfill ([0ba808c](https://github.com/ngParty/ng-metadata/commit/0ba808c))
+
+
+
+<a name="3.0.1"></a>
+## [3.0.1](https://github.com/ngParty/ng-metadata/compare/3.0.0...v3.0.1) (2016-10-20)
+
+
+### Bug Fixes
+
+* **manual_typings:** make custom global angular overrides work with both global and module type defin ([3eb047d](https://github.com/ngParty/ng-metadata/commit/3eb047d))
+
+
+
+<a name="3.0.0"></a>
+# [3.0.0](https://github.com/ngParty/ng-metadata/compare/3.0.0-beta.0...v3.0.0) (2016-10-20)
+
+
+### Bug Fixes
+
+* **core:** Fix typo in bundle error message, relax isNgModule check (fixes #155) (#159) ([52fa571](https://github.com/ngParty/ng-metadata/commit/52fa571)), closes [#155](https://github.com/ngParty/ng-metadata/issues/155) [(#159](https://github.com/(/issues/159)
+
+### Features
+
+* **upgrade:** Dedicated NgMetadataUpgradeAdapter bootstrap function (#160) ([f941c71](https://github.com/ngParty/ng-metadata/commit/f941c71))
+
+
+### BREAKING CHANGES
+
+* The rxjs peerDependency has been updated to 5.0.0-rc.1, and this in turn requires TypeScript of 2.x and above.
+
+
+
+<a name="3.0.0-beta.0"></a>
+# [3.0.0-beta.0](https://github.com/ngParty/ng-metadata/compare/2.2.1...v3.0.0-beta.0) (2016-09-20)
+
+
+### Features
+
+* **core:** Add NgModule, use it for angular1Module bundling ([ed1c326](https://github.com/ngParty/ng-metadata/commit/ed1c326))
+* **core:** Remove directives and pipes from ComponentMetadata ([ed1ca46](https://github.com/ngParty/ng-metadata/commit/ed1ca46))
+* **playground:** add NgModule type and update bootstrap defs ([9a176d4](https://github.com/ngParty/ng-metadata/commit/9a176d4))
+* **upgrade:** Update NgMetadataUpgradeAdapter to support NgModule ([0a81c13](https://github.com/ngParty/ng-metadata/commit/0a81c13))
+
+
+### BREAKING CHANGES
+
+* core: All Pipes and Components must now be registered via an NgModule's declarations array.
+
+**Before:**
+```typescript
+import { Component, Pipe } from 'ng-metadata/core'
+
+@Component({
+  selector: 'feature'
+})
+class FeatureComponent {}
+
+@Pipe()
+class FooPipe {
+  transform() {
+    return 'foo'
+  }
+}
+
+@Component({
+  selector: 'main',
+  directives: [FeatureComponent],
+  pipes: [FooPipe]
+})
+class MainComponent {}
+```
+
+**After:**
+```typescript
+import { NgModule, Component, Pipe } from 'ng-metadata/core'
+
+@Component({
+  selector: 'feature'
+})
+class FeatureComponent {}
+
+@Pipe()
+class FooPipe {
+  transform() {
+    return 'foo'
+  }
+}
+
+@Component({
+  selector: 'main'
+})
+class MainComponent {}
+
+@NgModule({
+  declarations: [MainComponent, FooPipe]
+})
+class MainModule {}
+```
+* upgrade: NgMetadataUpgradeAdapter now accepts an already
+instantiated @angular/upgrade UpgradeAdapter, which will have been
+created using an Angular 2 NgModule.
+
+**Before:**
+```typescript
+import { NgMetadataUpgradeAdapter } from 'ng-metadata/upgrade'
+import { UpgradeAdapter } from '@angular/upgrade'
+import { Component } from 'ng-metadata/core'
+
+const angular1Module = angular.module('ng1Module', [])
+
+@Component({
+  selector: 'app'
+})
+class AppComponent {}
+
+const upgradeAdapter = new NgMetadataUpgradeAdapter(UpgradeAdapter)
+
+upgradeAdapter.bootstrap(AppComponent, ['ng1Module'])
+```
+
+**After:**
+```typescript
+import { NgMetadataUpgradeAdapter } from 'ng-metadata/upgrade'
+import { UpgradeAdapter } from '@angular/upgrade'
+import { NgModule } from '@angular/core'
+
+const angular1Module = angular.module('ng1Module', [])
+
+@NgModule({
+  selector: 'ng2'
+})
+class Ng2Module {}
+
+const upgradeAdapter = new NgMetadataUpgradeAdapter( new
+UpgradeAdapter(Ng2Module) )
+
+upgradeAdapter.boostrap(document.body, ['ng1Module'])
+```
+* core: bundle() now takes an NgModule decorated class as its
+first argument instead of a Component.
+
+**Before:**
+```typescript
+import { Component, bundle } from 'ng-metadata/core'
+
+@Component({
+  selector: 'foo',
+  template: '<h1>Foo!</h1>'
+})
+class FooComponent {}
+
+const angular1Module = bundle(FooComponent)
+```
+
+**After:**
+```typescript
+import { NgModule, Component, bundle } from 'ng-metadata/core'
+
+@Component({
+  selector: 'foo',
+  template: '<h1>Foo!</h1>'
+})
+class FooComponent {}
+
+@NgModule({
+  declarations: [FooComponent]
+})
+class FooModule {}
+
+const angular1Module = bundle(FooModule)
+```
+* core: bootstrapping is now done on an NgModule, not on a
+Component.
+
+**Before:**
+```typescript
+import { bootstrap } from 'ng-metadata/platform-browser-dynamic'
+import { Component } from 'ng-metadata/core'
+
+@Component({
+  selector: 'app'
+})
+class AppComponent {}
+
+bootstrap(AppComponent)
+```
+
+**After:**
+```typescript
+import { platformBrowserDynamic } from 'ng-metadata/platform-browser-dynamic'
+import { NgModule, Component } from 'ng-metadata/core'
+
+@Component({
+  selector: 'app'
+})
+class AppComponent {}
+
+@NgModule({
+  declarations: [AppComponent]
+})
+class AppModule {}
+
+platformBrowserDynamic().bootstrapModule(AppModule)
+```
+
+
+
+<a name="2.2.1"></a>
+## [2.2.1](https://github.com/ngParty/ng-metadata/compare/2.2.0...v2.2.1) (2016-09-16)
+
+
+### Bug Fixes
+
+* **core/directives/directive_utils#_setupDestroyHandler:** remove element.off() on scope  event (#145) ([cbc2e20](https://github.com/ngParty/ng-metadata/commit/cbc2e20)), closes [#143](https://github.com/ngParty/ng-metadata/issues/143)
+* **testing:** Add a check on attributes before assigning to element i… (#137) ([cbb245d](https://github.com/ngParty/ng-metadata/commit/cbb245d)), closes [#136](https://github.com/ngParty/ng-metadata/issues/136)
+
+
+
+<a name="2.2.0"></a>
+# [2.2.0](https://github.com/ngParty/ng-metadata/compare/2.1.1...v2.2.0) (2016-08-30)
+
+
+### Bug Fixes
+
+* **core/di/reflective_provider:** allow boolean false value as useValue provider value (#134) ([f4e583e](https://github.com/ngParty/ng-metadata/commit/f4e583e)), closes [#123](https://github.com/ngParty/ng-metadata/issues/123)
+* **core/directives/ng_form:** add $name property (#130) ([f2c28d0](https://github.com/ngParty/ng-metadata/commit/f2c28d0)), closes [#127](https://github.com/ngParty/ng-metadata/issues/127)
+
+### Features
+
+* **core/directives:** explicitly set restriction type for Directive/Component to A/E (#132) ([e0af65d](https://github.com/ngParty/ng-metadata/commit/e0af65d)), closes [#128](https://github.com/ngParty/ng-metadata/issues/128)
+
+
+
+<a name="2.1.1"></a>
+## [2.1.1](https://github.com/ngParty/ng-metadata/compare/2.1.0...v2.1.1) (2016-07-15)
+
+
+### Bug Fixes
+
+* **upgrade:** fix adapter export and typo in docs (#120) ([3c59319](https://github.com/ngParty/ng-metadata/commit/3c59319)), closes [#120](https://github.com/ngParty/ng-metadata/issues/120)
+
+
+
+<a name="2.1.0"></a>
+# [2.1.0](https://github.com/ngParty/ng-metadata/compare/2.0.0...v2.1.0) (2016-07-13)
+
+
+### Features
+
+* **upgrade:** add ngUpgrade integration support (#116) ([cdc86dc](https://github.com/ngParty/ng-metadata/commit/cdc86dc)), closes [#83](https://github.com/ngParty/ng-metadata/issues/83)
+
+
+
 <a name="2.0.0"></a>
 # [2.0.0](https://github.com/ngParty/ng-metadata/compare/1.12.4...v2.0.0) (2016-06-26)
 
